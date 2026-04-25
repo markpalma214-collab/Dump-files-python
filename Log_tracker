@@ -1,0 +1,31 @@
+# log progress tracker
+import time
+import os
+def make_time():
+    seconds = 0
+    print("Timer has started! Press Ctrl +C to stop.\n")
+    try:
+
+        while True:
+         
+         mins, sec = divmod(seconds, 60) # i want it so that it prints 00:01
+         print(f"{mins:02d}: {sec:02d}", end="\r")
+         time.sleep(1)
+         seconds+=1
+    except KeyboardInterrupt:
+       print("\nTimer stopped.")
+    return seconds
+    
+
+def log_tracker():
+    user_input = input("What are you going to study today? ")
+    if user_input.strip() != "":                   
+       time_focused = make_time()
+       timezone = time.strftime("%B %d %Y | %H:%M:%S")
+
+       with open("log_tracker.txt", "a") as file:
+          file.write("30 Day Accountability Plan! \n")
+          file.write(f"{timezone}: hobby studied: {user_input} | Time focused: {time_focused} seconds\n")
+       
+print(os.path.abspath("log_tracker.txt"))
+
