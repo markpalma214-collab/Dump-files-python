@@ -1,0 +1,37 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
+app = FastAPI()
+expenses = []
+class Expense(BaseModel):
+    id:int
+    name:str
+    amount:float
+    category:str
+
+@app.post("/expenses")
+def add_expense(expense:Expense):
+    expenses.append(expense)
+    return {
+        "message": "Expenses added",
+        "data": expense
+    }
+@app.get("/expenses")
+def read_expenses():
+    return expenses
+
+@app.get("/expenses/{expense_id}")
+def read_expense(expense_id: int):
+    for expense in expenses:
+        if expense.id == expense_id:
+            return expense
+    return {"error": "Expense not found"}
+
+@app.get("/expenses/{expense_category}")
+def read_category(expense_category: str):
+    results = []
+    for expense in expenses:
+        if expense.category == expense_category:
+            results.append(expense)
+        
+    return results
