@@ -1,0 +1,42 @@
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from .database import SessionLocal, engine
+from . import models, schemas
+
+# calories recommended intake
+
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+def sessionmaker():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.post("/posts", response_model=schemas.user_response)
+def create_user(data: schemas.user_create, db: Session = Depends(sessionmaker)):
+    # Calculate base values
+    calories_if_men = 10 * data.weight + 6.25 * data.height - 5 * data.age + 5
+    calories_if_women = 10 * data.weight + 6.25 * data.height - 5 * data.age - 161
+    
+    # Select gender logic and round to nearest whole number to satisfy Pydantic 'int' validation
+    raw_calories = calories_if_men if data.gender == "male" else calories_if_women
+    calories = round(raw_calories)
+
+    new_user = models.User_Intake(
+        name=data.name,
+        age=data.age,
+        gender=data.gender,
+        weight=data.weight,
+        height=data.height,
+        calories_recommended=calories
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return new_user
