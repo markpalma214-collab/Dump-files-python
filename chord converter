@@ -1,0 +1,86 @@
+import random
+from chord_prog import keys, key_converter
+converted_themes = []
+themes = {
+    "happy": {
+        "key": "C major",
+        "progressions": [
+            ["C", "G", "Am", "F"],
+            ["C", "F", "G"],
+            ["C", "Am", "F", "G"]
+        ]
+    },
+
+    "sad": {
+        "key": "A minor",
+        "progressions": [
+            ["Am", "F", "C", "G"],
+            ["Am", "Dm", "Em", "Am"]
+        ]
+    },
+
+    "jazz": {
+        "key": "C major",
+        "progressions": [
+            ["Dm7", "G7", "Cmaj7"],
+            ["Cmaj7", "A7", "Dm7", "G7"]
+        ]
+    },
+
+    "talking": {
+        "key": "C major",
+        "progressions": [
+            ["C", "G", "Am", "F"],
+            ["C", "F", "C", "G"]
+        ]
+    },
+
+    "church": {
+        "key": "G major",
+        "progressions": [
+            ["G", "D", "Em", "C"],
+            ["G", "C", "G", "D"]
+        ]
+    },
+
+        "horror": {
+            "key": "D minor",
+            "progressions": [
+                ["Dm", "Bb", "A", "Dm"],
+                ["Dm", "Gm", "A", "Dm"]
+            ]
+        }
+    }
+
+for key in keys:
+    reverse_keys[key] = {} # "i": "C",  "ii": "Dm",  "iii": "Em",  "iv": "F",
+    for roman, chord in keys[key].items():
+        reverse_keys[key][chord] = roman
+print("Piano Themes: ")
+for i, key in enumerate(themes, start=1):
+    print(f"{i}. {key}")
+user = input("choose the theme of your chord ")
+if user in themes:
+    print("themes selected:", user)
+    print("key:", themes[user]["key"])
+    print("progression:")
+    for progression in themes[user]["progressions"]:
+        print(progression)
+        validation = input("Convert this into a key? (yes or no)")
+        if validation == "yes":
+            key_converter()
+        else:
+            print("Goodbye!")
+            break
+
+
+else:
+    print("invalid input")
+
+# it seems that i have to convert the dictionary progression into a roman value for it to work
+
+
+# changing the key of the chord progression
+
+# i think i want to make a project first that converts a chord to a requested key
+# so we have C D E F G A B key 
