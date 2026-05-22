@@ -1,0 +1,14 @@
+from pydantic import BaseModel
+class Note_create(BaseModel):
+    Title: str
+    Topic: str
+    Category: str
+    Vocabulary:str
+    Note: str
+
+
+class note_response(Note_create):
+    Id: int
+    word_count: int
+    class Config:
+        orm_mode = True
