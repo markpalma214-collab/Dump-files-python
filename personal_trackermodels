@@ -1,0 +1,19 @@
+from sqlalchemy import Column, Integer, String, DateTime
+from app.database import Base
+from datetime import datetime
+
+class Personal_Note(Base):
+    __tablename__ = "Personalnote"
+    Id = Column(Integer, primary_key= True, index=True)
+    Title = Column(String)
+    Topic = Column(String)
+    Vocabulary = Column(String)
+    Category = Column(String, unique= True)
+    Note = Column(String)
+    Date = Column(DateTime, default= datetime.utcnow)
+    @property
+    def word_count(self):
+        if self.Note:
+            return len(self.Note.split())
+        return 0
+    
