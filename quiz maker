@@ -1,0 +1,31 @@
+
+import requests
+import time
+import random
+import threading
+url = "https://opentdb.com/api.php?amount=10&category=18&difficulty=easy"
+
+error = requests.get(url)
+data = error.json()
+
+def countdown():
+    random_sec = random.randint(5,10)
+    for x in range(random_sec, -1, -1):
+        print(f"00:{x:02d}", end="\r")
+        time.sleep(1)
+
+collection = data["results"]
+for i, data in enumerate(collection, start=1):
+    question = data["question"]
+    answer = data["correct_answer"]
+    timer = threading.Thread(target=countdown)
+    timer.start()
+    users_answer = input(question + "\n Your answer: ")
+    timer.join
+    if users_answer.strip().lower() == answer.strip().lower():
+        print("Correct!")
+    else:
+        print(f"Wrong, The Correct answer is: {answer}.")
+    if i == len(collection)-1:
+        print("Goodbye")
+        break
