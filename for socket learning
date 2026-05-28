@@ -1,42 +1,72 @@
-import socket
 import threading
-
-PORT = 5050
+import socket
+import pickle
+port = 5050
 HEADER = 64
+LOCAL_ADDRESS = "192.168.100.151"
 FORMAT = 'utf-8'
 DISCONNECT = "!DISCONNECT"
 
-#SERVER = "192.168.100.151"
-SERVER = socket.gethostbyname(socket.gethostname()) # get ip address automatically
-ADDR = (SERVER,PORT)
+SERVER = socket.gethostbyname(socket.gethostname())
+addr = (SERVER, port)
 
-# family = category
-# socket.SOCK_STREAM is a type
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR) # connected 
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind(addr)
 
-def handle_client(addr, conn):
-    print(f"[NEW CONNECTION]: {addr} connected.")
+clients = []
+
+def broadcast(message, sender_conn):
+    for client in clients:
+        if client != sender_conn:
+            try:
+                client.send(message)
+            except:
+                clients.remove(client)
+            
+
+def handle_client(conn, addr):
+    print(f"[NEW CONNECTION]: {addr}, {conn}")
     connected = True
+
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
-        msg_length = int(msg_length) 
-        msg = conn.recv(msg_length).decode(FORMAT) # how many bytes
-        if msg == DISCONNECT:
-            connected = False
-        
-        print(f"{addr} {msg}")
-        conn.close()
+
+        if msg_length:
+            msg_length = int(msg_length)
+
+            msg = conn.recv(msg_length).decode(FORMAT)
+
+            if msg == DISCONNECT:
+                connected = False
+
+            print(f"{addr}, {msg}")
+            conn.send("Msg recieved".encode(FORMAT  ))
+
+    conn.close()
+    print(f"[DISCONNECTED] {addr}")
 
 
 def start():
     server.listen()
-    print(f"[LISTENING SERVER] SERVER is listening on {SERVER}")
-    while True:
-        conn, addr = server.accept() # waits for a new connection 
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
-        thread.start
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count()-1}")
+    print(f"[SERVER] is listening on {SERVER}")
 
-print("[STARTING] server is starting...")
+    try:
+        while True:
+            conn, addr = server.accept()
+
+            worker = threading.Thread(
+                target=handle_client,
+                args=(conn, addr)
+            )
+            worker.start()
+            print(f"[ACTIVE CONNECTIONS] {threading.active_count()-1}")
+        
+
+    except KeyboardInterrupt:
+        print("\nSERVER SHUTING DOWN....")
+        server.close()
+
+
+print("[SERVER] is starting...")
 start()
