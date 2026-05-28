@@ -1,0 +1,46 @@
+import socket
+import threading
+
+PORT = 5050
+HEADER = 64
+FORMAT = 'utf-8'
+DISCONNECT = "!DISCONNECT"
+SERVER = "192.168.100.151"   # your server IP
+ADDR = (SERVER, PORT)
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(ADDR)
+
+
+def receive_messages():
+    """Background thread: constantly listens for messages from server."""
+    while True:
+        msg = client.recv(2048).decode(FORMAT)
+        try:
+            if msg:
+                print("\n" + msg)
+        except:
+            break
+
+
+def send(msg):
+    """Send a message to the server."""
+    message = msg.encode(FORMAT)
+    message_length = len(message)
+    send_length = str(message_length).encode(FORMAT)
+    send_length += b' ' * (HEADER - len(send_length))
+
+    client.send(send_length)
+    client.send(message)
+
+
+# Start background listener
+thread = threading.Thread(target= receive_messages)
+thread.daemon = True
+thread.start()
+print("CONNECTED type !DISCONNECT to exit")
+while True:
+    text = input("")
+    send(text)
+    if text == DISCONNECT:
+        break
